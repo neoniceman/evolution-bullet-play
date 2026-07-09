@@ -1,0 +1,25 @@
+{
+  "name": "Evolution Bullet",
+  "short_name": "Evo Bullet",
+  "description": "Pull, aim, and release one evolving bullet to sweep a cute fantasy arena.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "theme_color": "#7ad7ff",
+  "background_color": "#f7fbff",
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
