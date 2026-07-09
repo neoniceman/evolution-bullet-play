@@ -49,17 +49,12 @@
       position: relative;
       width: 100%;
       height: 100dvh;
-      display: grid;
-      place-items: center;
-      background:
-        radial-gradient(circle at 16% 18%, rgba(255, 246, 165, .8), transparent 18%),
-        linear-gradient(180deg, #99e5ff 0%, #def9ff 58%, #b9f1cd 100%);
+      overflow: hidden;
+      background: #95e2ff;
     }
     canvas {
-      width: min(100vw, calc(100dvh * 16 / 9));
-      height: min(100dvh, calc(100vw * 9 / 16));
-      max-width: 100%;
-      max-height: 100dvh;
+      width: 100vw;
+      height: 100dvh;
       display: block;
       border-radius: 0;
       touch-action: none;
@@ -71,34 +66,77 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 14px;
+      padding: 10px max(14px, env(safe-area-inset-left)) 8px;
       pointer-events: none;
-      gap: 10px;
+      gap: 8px;
     }
     .pill {
-      min-width: 84px;
-      height: 38px;
+      position: relative;
+      min-width: 96px;
+      height: 48px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      padding: 0 12px;
-      border: 2px solid rgba(255,255,255,.78);
-      border-radius: 999px;
-      background: var(--panel);
-      box-shadow: 0 8px 22px rgba(48,65,95,.12);
-      font-weight: 900;
-      font-size: 14px;
+      gap: 8px;
+      padding: 4px 16px 6px;
+      border: 3px solid rgba(255,255,255,.96);
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,.94), rgba(220,246,255,.9));
+      box-shadow: 0 7px 0 rgba(58,128,166,.28), 0 12px 26px rgba(36,74,111,.16), inset 0 -5px 0 rgba(104,190,226,.12);
+      font-weight: 1000;
+      font-size: 19px;
       white-space: nowrap;
       backdrop-filter: blur(8px);
+      color: #263956;
+      text-shadow: 0 2px 0 #fff;
+    }
+    .pill strong {
+      display: block;
+      font-size: 9px;
+      line-height: 1;
+      letter-spacing: .7px;
+      color: #6380a7;
+      text-shadow: none;
+    }
+    .pill b {
+      display: block;
+      min-width: 42px;
+      font-size: 22px;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      transform-origin: center;
+    }
+    .scorePulse b { animation: scorePunch .28s ease both; }
+    .scoreFly {
+      position: absolute;
+      left: 34px;
+      top: 58px;
+      z-index: 4;
+      pointer-events: none;
+      color: #fff36d;
+      font-size: 28px;
+      font-weight: 1000;
+      text-shadow: 0 4px 0 rgba(73,56,95,.42), 0 0 18px rgba(255,117,154,.85);
+      animation: scoreFly .72s cubic-bezier(.2, 1.25, .3, 1) both;
+    }
+    @keyframes scorePunch {
+      0% { transform: scale(1); color: #263956; }
+      38% { transform: scale(1.32) rotate(-3deg); color: #ff4f94; }
+      100% { transform: scale(1); color: #263956; }
+    }
+    @keyframes scoreFly {
+      0% { opacity: 0; transform: translateY(12px) scale(.72) rotate(-4deg); }
+      22% { opacity: 1; transform: translateY(-4px) scale(1.2) rotate(2deg); }
+      100% { opacity: 0; transform: translateY(-58px) scale(.94) rotate(-2deg); }
     }
     .bar {
-      width: min(30vw, 250px);
-      height: 16px;
-      border-radius: 999px;
+      width: min(31vw, 310px);
+      height: 20px;
+      border-radius: 12px;
       overflow: hidden;
-      border: 2px solid rgba(255,255,255,.82);
-      background: rgba(255,255,255,.55);
+      border: 3px solid rgba(255,255,255,.92);
+      background: rgba(255,255,255,.62);
+      box-shadow: 0 5px 0 rgba(58,128,166,.22), inset 0 2px 5px rgba(37,69,105,.12);
     }
     .bar > i {
       display: block;
@@ -106,6 +144,7 @@
       width: 0%;
       background: linear-gradient(90deg, #ffe96e, #ff7aa5, #8b63ff);
       transition: width .18s ease;
+      box-shadow: 0 0 16px rgba(255,122,165,.72);
     }
     .centerText {
       position: absolute;
@@ -134,16 +173,115 @@
       display: grid;
       place-items: center;
       padding: 22px;
-      background: rgba(230, 249, 255, .72);
-      backdrop-filter: blur(12px);
+      background: rgba(28, 64, 104, .12);
       z-index: 5;
+    }
+    #start {
+      place-items: stretch;
+      padding: 18px;
+      background:
+        linear-gradient(90deg, rgba(31,57,103,.66), rgba(31,57,103,.04) 42%, rgba(31,57,103,.48)),
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(56,120,170,.18)),
+        url("assets/og/evolution-bullet-og.png") center / cover no-repeat;
+    }
+    .startStage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: minmax(320px, 42vw) 1fr;
+      align-items: center;
+      padding: clamp(18px, 4vw, 54px);
+    }
+    .brandLockup {
+      align-self: center;
+      max-width: 560px;
+      color: #fff;
+      text-shadow: 0 4px 0 rgba(52,62,120,.35), 0 12px 28px rgba(24,42,87,.28);
+    }
+    .brandLockup .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      height: 28px;
+      padding: 0 12px;
+      border: 2px solid rgba(255,255,255,.86);
+      border-radius: 999px;
+      background: rgba(255,112,151,.9);
+      box-shadow: 0 4px 0 rgba(164,58,102,.5);
+      font-size: 13px;
+      font-weight: 1000;
+      color: #fff;
+      text-shadow: none;
+    }
+    .brandLockup h1 {
+      margin: 12px 0 10px;
+      font-size: clamp(42px, 8.5vw, 98px);
+      line-height: .86;
+      letter-spacing: 0;
+      color: #fff;
+    }
+    .brandLockup h1 span {
+      display: block;
+      color: #fff06b;
+    }
+    .brandLockup p {
+      width: min(500px, 42vw);
+      margin: 0 0 18px;
+      color: #eefbff;
+      font-size: clamp(16px, 2vw, 24px);
+      line-height: 1.32;
+      font-weight: 1000;
+    }
+    .startBadges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 0 0 20px;
+    }
+    .startBadges span {
+      display: inline-flex;
+      align-items: center;
+      height: 32px;
+      padding: 0 12px;
+      border: 2px solid rgba(255,255,255,.8);
+      border-radius: 999px;
+      background: rgba(255,255,255,.82);
+      color: #284361;
+      font-size: 13px;
+      font-weight: 1000;
+      text-shadow: none;
+      box-shadow: 0 4px 0 rgba(68,117,146,.24);
+    }
+    .startPreview {
+      position: absolute;
+      right: clamp(24px, 6vw, 92px);
+      bottom: clamp(22px, 6vw, 62px);
+      display: grid;
+      gap: 10px;
+      justify-items: center;
+      color: #fff;
+      font-weight: 1000;
+      text-shadow: 0 3px 0 rgba(35,64,108,.32);
+      animation: floatPreview 2.4s ease-in-out infinite;
+    }
+    .startPreview .bulletBadge {
+      width: 94px;
+      height: 94px;
+      border-radius: 50%;
+      border: 5px solid rgba(255,255,255,.9);
+      background: radial-gradient(circle at 30% 25%, #fff, #fff36d 30%, #ff76a6 63%, #7d61ff 100%);
+      box-shadow: 0 0 34px rgba(255,243,109,.85), 0 10px 0 rgba(55,71,137,.2);
+    }
+    @keyframes floatPreview {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
     }
     .modal {
       width: min(560px, 92vw);
       padding: 24px;
-      border: 2px solid rgba(255,255,255,.9);
+      border: 3px solid rgba(255,255,255,.92);
       border-radius: 8px;
-      background: rgba(255,255,255,.82);
+      background: rgba(255,255,255,.88);
       box-shadow: 0 20px 60px rgba(48,65,95,.18);
       text-align: center;
     }
@@ -166,16 +304,17 @@
       flex-wrap: wrap;
     }
     button {
-      height: 44px;
+      height: 54px;
       border: 0;
       border-radius: 8px;
-      padding: 0 18px;
-      background: #ff6f9d;
+      padding: 0 28px;
+      background: linear-gradient(180deg, #ff82ae, #ff4f89);
       color: #fff;
       font-weight: 1000;
-      font-size: 16px;
-      box-shadow: 0 8px 0 #d64f7a;
+      font-size: 20px;
+      box-shadow: 0 8px 0 #c63e71, 0 14px 28px rgba(66,48,93,.2);
       cursor: pointer;
+      text-shadow: 0 2px 0 rgba(112,38,80,.24);
     }
     button.secondary {
       background: #6cccf5;
@@ -190,25 +329,48 @@
     @media (orientation: portrait) {
       #rotate { display: grid; }
     }
+    @media (max-width: 760px) {
+      .hud { height: 50px; padding-top: 6px; }
+      .pill { min-width: 72px; height: 40px; padding: 3px 10px 5px; border-radius: 13px; font-size: 15px; }
+      .pill strong { font-size: 8px; }
+      .pill b { font-size: 17px; min-width: 28px; }
+      .bar { width: 22vw; height: 16px; }
+      .startStage { grid-template-columns: 1fr; padding: 18px 20px; align-items: end; }
+      .brandLockup p { width: min(440px, 64vw); font-size: 15px; }
+      .startPreview { right: 28px; bottom: 22px; transform: scale(.76); }
+      .startPreview .bulletBadge { width: 70px; height: 70px; }
+    }
   </style>
 </head>
 <body>
   <main id="app">
     <canvas id="game" width="1280" height="720" aria-label="Evolution Bullet game canvas"></canvas>
     <section class="hud">
-      <div class="pill">SCORE <span id="score">0</span></div>
-      <div class="pill">⏱ <span id="time">60.0</span></div>
-      <div class="pill">LV <span id="level">1</span></div>
+      <div class="pill" id="scoreBox"><strong>SCORE</strong><b id="score">0</b></div>
+      <div class="pill"><strong>TIME</strong><b id="time">60.0</b></div>
+      <div class="pill"><strong>BULLET</strong><b>LV <span id="level">1</span></b></div>
       <div class="bar" aria-hidden="true"><i id="xp"></i></div>
       <div class="pill" id="combo">COMBO 0</div>
     </section>
     <div class="centerText" id="banner"></div>
     <section class="overlay" id="start">
-      <div class="modal">
-        <h1>Evolution Bullet</h1>
-        <p>탄환을 뒤로 당겼다가 놓으세요!<br>당긴 반대 방향으로 발사됩니다.</p>
-        <div class="actions">
-          <button id="startBtn">PLAY</button>
+      <div class="startStage">
+        <div class="brandLockup">
+          <span class="eyebrow">60 SEC ONE-SHOT ACTION</span>
+          <h1>Evolution <span>Bullet</span></h1>
+          <p>한 발을 당겨 쏘고, 튕기고, 진화시켜 화면을 쓸어버리세요.</p>
+          <div class="startBadges">
+            <span>Pull & Release</span>
+            <span>7 Evolutions</span>
+            <span>Boss Rush</span>
+          </div>
+          <div class="actions">
+            <button id="startBtn">PLAY NOW</button>
+          </div>
+        </div>
+        <div class="startPreview" aria-hidden="true">
+          <div class="bulletBadge"></div>
+          <span>DRAG BACK · RELEASE</span>
         </div>
       </div>
     </section>
@@ -245,7 +407,8 @@
         banner: document.getElementById("banner"),
         start: document.getElementById("start"),
         result: document.getElementById("result"),
-        resultText: document.getElementById("resultText")
+        resultText: document.getElementById("resultText"),
+        scoreBox: document.getElementById("scoreBox")
       };
 
       class AudioSystem {
@@ -282,16 +445,29 @@
         pulse(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
       }
       class UIManager {
-        constructor(game) { this.game = game; this.displayScore = 0; }
+        constructor(game) { this.game = game; this.displayScore = 0; this.lastScore = 0; }
         banner(text) {
           elements.banner.textContent = text;
           elements.banner.classList.remove("show");
           void elements.banner.offsetWidth;
           elements.banner.classList.add("show");
         }
+        scoreFly(amount) {
+          const node = document.createElement("div");
+          node.className = "scoreFly";
+          node.textContent = `+${amount.toLocaleString()}`;
+          document.getElementById("app").appendChild(node);
+          node.addEventListener("animationend", () => node.remove(), { once: true });
+        }
         update(dt) {
           this.displayScore += (this.game.score.score - this.displayScore) * clamp(dt * 10, 0, 1);
           elements.score.textContent = Math.round(this.displayScore).toLocaleString();
+          if (this.game.score.score > this.lastScore) {
+            elements.scoreBox.classList.remove("scorePulse");
+            void elements.scoreBox.offsetWidth;
+            elements.scoreBox.classList.add("scorePulse");
+            this.lastScore = this.game.score.score;
+          }
           elements.time.textContent = Math.max(0, this.game.timeLeft).toFixed(1);
           elements.level.textContent = this.game.bullet.level;
           elements.xp.style.width = `${this.game.bullet.level >= 7 ? 100 : this.game.score.xpProgress() * 100}%`;
@@ -317,7 +493,8 @@
           const gained = (boss ? 5000 : enemy.value) * (1 + Math.min(2.5, this.combo * .04));
           this.score += Math.round(gained);
           this.xp += boss ? 120 : enemy.xp;
-          this.game.effects.text(enemy.x, enemy.y - enemy.r, `+${Math.round(gained)}`, "#fff36d", 24 + Math.min(28, this.combo));
+          this.game.ui.scoreFly(Math.round(gained));
+          this.game.effects.text(enemy.x, enemy.y - enemy.r, `+${Math.round(gained)}`, "#fff36d", 32 + Math.min(38, this.combo * 1.5));
           if (this.combo === 8) this.game.ui.banner("NICE!");
           if (this.combo === 18) this.game.ui.banner("GREAT!");
           if (this.combo === 34) this.game.ui.banner("INSANE!");
@@ -351,7 +528,7 @@
           }
         }
         shockwave(x, y, color, r = 110) { this.waves.push({ x, y, life: .38, max: .38, r, color }); }
-        text(x, y, text, color = "#fff", size = 22) { this.texts.push({ x, y, vy: -86, life: .72, text, color, size }); }
+        text(x, y, text, color = "#fff", size = 22) { this.texts.push({ x, y, vy: -126, life: 1.05, text, color, size }); }
         update(dt) {
           for (let i = this.items.length - 1; i >= 0; i--) {
             const p = this.items[i]; p.life -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 360 * dt;
@@ -382,32 +559,56 @@
           ctx.globalAlpha = 1;
           ctx.textAlign = "center"; ctx.textBaseline = "middle";
           for (const t of this.texts) {
-            ctx.globalAlpha = clamp(t.life / .72, 0, 1);
+            ctx.globalAlpha = clamp(t.life / 1.05, 0, 1);
             ctx.font = `1000 ${t.size}px ui-rounded, sans-serif`;
-            ctx.lineWidth = 5; ctx.strokeStyle = "rgba(48,65,95,.36)"; ctx.strokeText(t.text, t.x, t.y);
+            ctx.lineWidth = Math.max(6, t.size * .18); ctx.strokeStyle = "rgba(48,65,95,.46)"; ctx.strokeText(t.text, t.x, t.y);
             ctx.fillStyle = t.color; ctx.fillText(t.text, t.x, t.y);
           }
           ctx.globalAlpha = 1;
         }
       }
       class Player {
-        constructor() { this.x = W * .5; this.y = H - 94; this.strain = 0; this.jump = 0; }
+        constructor() { this.x = W * .5; this.y = H - 92; this.strain = 0; this.jump = 0; }
         update(dt, aiming, power, ended) {
           this.strain += ((aiming ? power : 0) - this.strain) * clamp(dt * 10, 0, 1);
-          this.jump = ended ? Math.sin(performance.now() * .01) * 8 : 0;
+          this.jump = Math.sin(performance.now() * .006) * (ended ? 10 : 3);
         }
         draw(ctx) {
-          const y = this.y + this.jump, s = 1 + this.strain * .045;
+          const y = this.y + this.jump, s = 1 + this.strain * .06, t = performance.now() * .006;
           ctx.save(); ctx.translate(this.x, y); ctx.scale(s, 1 / s);
-          ctx.fillStyle = "rgba(79,114,96,.18)"; ctx.beginPath(); ctx.ellipse(0, 48, 58, 14, 0, 0, TAU); ctx.fill();
-          ctx.fillStyle = "#7b66ff"; ctx.beginPath(); ctx.moveTo(-34, -18); ctx.lineTo(0, -80); ctx.lineTo(36, -18); ctx.closePath(); ctx.fill();
-          ctx.fillStyle = "#fff36d"; ctx.beginPath(); ctx.arc(0, -43, 11, 0, TAU); ctx.fill();
-          ctx.fillStyle = "#ffd1a8"; ctx.beginPath(); ctx.arc(0, -14, 34, 0, TAU); ctx.fill();
-          ctx.fillStyle = "#5d4a9e"; ctx.beginPath(); ctx.arc(-12, -17, 4, 0, TAU); ctx.arc(13, -17, 4, 0, TAU); ctx.fill();
-          ctx.strokeStyle = "#9b5771"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(1, -7, 11, .1, Math.PI - .1); ctx.stroke();
-          ctx.fillStyle = "#75d6ff"; ctx.beginPath(); ctx.roundRect(-22, 20, 44, 35, 12); ctx.fill();
-          ctx.strokeStyle = "#7b66ff"; ctx.lineWidth = 9; ctx.lineCap = "round";
-          ctx.beginPath(); ctx.moveTo(-18, 29); ctx.lineTo(-48 - this.strain * 7, 13); ctx.moveTo(18, 29); ctx.lineTo(48 + this.strain * 7, 13); ctx.stroke();
+          ctx.fillStyle = "rgba(41,96,72,.2)"; ctx.beginPath(); ctx.ellipse(0, 58, 70, 18, 0, 0, TAU); ctx.fill();
+          ctx.lineJoin = "round"; ctx.lineCap = "round";
+          ctx.strokeStyle = "#503f9c"; ctx.lineWidth = 9;
+          ctx.beginPath(); ctx.moveTo(-42, -14); ctx.lineTo(-8, -100); ctx.lineTo(28, -18); ctx.closePath(); ctx.stroke();
+          const hat = ctx.createLinearGradient(-30, -95, 30, -20);
+          hat.addColorStop(0, "#9577ff"); hat.addColorStop(.58, "#6046e8"); hat.addColorStop(1, "#4031a5");
+          ctx.fillStyle = hat; ctx.beginPath(); ctx.moveTo(-42, -14); ctx.lineTo(-8, -100); ctx.lineTo(28, -18); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = "#fff06b"; ctx.beginPath();
+          for (let i = 0; i < 10; i++) {
+            const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? 8 : 17;
+            ctx[i ? "lineTo" : "moveTo"](-4 + Math.cos(a) * rr, -78 + Math.sin(a) * rr);
+          }
+          ctx.closePath(); ctx.fill();
+          ctx.strokeStyle = "#b56946"; ctx.lineWidth = 10;
+          ctx.beginPath(); ctx.moveTo(-35, 22); ctx.lineTo(-61 - this.strain * 10, 5 + Math.sin(t) * 2); ctx.moveTo(35, 22); ctx.lineTo(62 + this.strain * 10, 4 - Math.sin(t) * 2); ctx.stroke();
+          ctx.strokeStyle = "#49388f"; ctx.lineWidth = 13;
+          ctx.beginPath(); ctx.moveTo(-28, 26); ctx.lineTo(-54 - this.strain * 12, 10); ctx.moveTo(28, 26); ctx.lineTo(55 + this.strain * 12, 10); ctx.stroke();
+          ctx.strokeStyle = "#8e60d8"; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(-42, -14); ctx.lineTo(38, -20); ctx.stroke();
+          ctx.strokeStyle = "#8b5a5e"; ctx.lineWidth = 7;
+          ctx.beginPath(); ctx.arc(0, -17, 39, 0, TAU); ctx.stroke();
+          const skin = ctx.createRadialGradient(-12, -30, 8, 0, -14, 48);
+          skin.addColorStop(0, "#ffe0b8"); skin.addColorStop(1, "#ffb77b");
+          ctx.fillStyle = skin; ctx.beginPath(); ctx.arc(0, -17, 39, 0, TAU); ctx.fill();
+          ctx.fillStyle = "#8c5b44"; ctx.beginPath(); ctx.arc(-14, -20, 4.5, 0, TAU); ctx.arc(15, -20, 4.5, 0, TAU); ctx.fill();
+          ctx.fillStyle = "rgba(255,117,154,.35)"; ctx.beginPath(); ctx.arc(-24, -9, 7, 0, TAU); ctx.arc(25, -9, 7, 0, TAU); ctx.fill();
+          ctx.strokeStyle = "#8c5b44"; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(1, -9, 14, .15, Math.PI - .15); ctx.stroke();
+          ctx.strokeStyle = "#365eac"; ctx.lineWidth = 8; ctx.beginPath(); ctx.roundRect(-27, 23, 54, 42, 14); ctx.stroke();
+          const robe = ctx.createLinearGradient(0, 20, 0, 68);
+          robe.addColorStop(0, "#8fe4ff"); robe.addColorStop(1, "#4aa7ff");
+          ctx.fillStyle = robe; ctx.beginPath(); ctx.roundRect(-27, 23, 54, 42, 14); ctx.fill();
+          ctx.fillStyle = "#fff5a6"; ctx.beginPath(); ctx.arc(0, 37, 7, 0, TAU); ctx.fill();
+          ctx.strokeStyle = "#583e95"; ctx.lineWidth = 9;
+          ctx.beginPath(); ctx.moveTo(-14, 61); ctx.lineTo(-29, 76); ctx.moveTo(15, 61); ctx.lineTo(31, 76); ctx.stroke();
           ctx.restore();
         }
       }
@@ -508,9 +709,14 @@
           ctx.save(); ctx.translate(this.x, this.y + bob); ctx.scale(s, s);
           ctx.fillStyle = "rgba(79,114,96,.14)"; ctx.beginPath(); ctx.ellipse(0, this.r * .8, this.r * .8, this.r * .23, 0, 0, TAU); ctx.fill();
           const body = this.kind === "mushroom" ? "#ff8faa" : this.kind === "cloud" ? "#f8fdff" : this.kind === "star" ? "#ffe86a" : "#8cf1ba";
+          ctx.lineJoin = "round";
+          ctx.strokeStyle = this.boss ? "#79446f" : "rgba(59,78,118,.58)";
+          ctx.lineWidth = this.boss ? 8 : 5;
           ctx.fillStyle = this.flash > 0 ? "#fff" : body;
           if (this.kind === "mushroom") {
-            ctx.beginPath(); ctx.arc(0, -this.r * .22, this.r * .95, Math.PI, TAU); ctx.fill();
+            ctx.beginPath(); ctx.arc(0, -this.r * .22, this.r * .95, Math.PI, TAU); ctx.stroke(); ctx.fill();
+            ctx.fillStyle = "rgba(255,255,255,.55)";
+            ctx.beginPath(); ctx.arc(-this.r * .35, -this.r * .56, this.r * .16, 0, TAU); ctx.arc(this.r * .24, -this.r * .48, this.r * .12, 0, TAU); ctx.fill();
             ctx.fillStyle = this.flash > 0 ? "#fff" : "#f7d3a9"; ctx.beginPath(); ctx.roundRect(-this.r * .38, -this.r * .08, this.r * .76, this.r * .95, 12); ctx.fill();
           } else if (this.kind === "star") {
             ctx.beginPath();
@@ -518,9 +724,12 @@
               const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? this.r * .46 : this.r;
               ctx[i ? "lineTo" : "moveTo"](Math.cos(a) * rr, Math.sin(a) * rr);
             }
-            ctx.closePath(); ctx.fill();
+            ctx.closePath(); ctx.stroke(); ctx.fill();
           } else {
-            ctx.beginPath(); ctx.roundRect(-this.r, -this.r * .72, this.r * 2, this.r * 1.44, this.r * .58); ctx.fill();
+            ctx.beginPath(); ctx.roundRect(-this.r, -this.r * .72, this.r * 2, this.r * 1.44, this.r * .58); ctx.stroke(); ctx.fill();
+            const shine = ctx.createLinearGradient(-this.r, -this.r, this.r, this.r);
+            shine.addColorStop(0, "rgba(255,255,255,.66)"); shine.addColorStop(.34, "rgba(255,255,255,.18)"); shine.addColorStop(1, "rgba(255,255,255,0)");
+            ctx.fillStyle = shine; ctx.beginPath(); ctx.roundRect(-this.r * .72, -this.r * .55, this.r * 1.06, this.r * .55, this.r * .25); ctx.fill();
           }
           ctx.fillStyle = "#405172"; ctx.beginPath(); ctx.arc(-this.r * .28, -this.r * .12, 3.8, 0, TAU); ctx.arc(this.r * .28, -this.r * .12, 3.8, 0, TAU); ctx.fill();
           ctx.strokeStyle = "#405172"; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(0, this.r * .08, this.r * .25, .1, Math.PI - .1); ctx.stroke();
@@ -732,12 +941,30 @@
         }
         drawBackground(ctx) {
           const grd = ctx.createLinearGradient(0, 0, 0, H);
-          grd.addColorStop(0, "#9de7ff"); grd.addColorStop(.58, "#eafbff"); grd.addColorStop(1, "#a9efc7");
+          grd.addColorStop(0, "#78dfff"); grd.addColorStop(.45, "#d7f8ff"); grd.addColorStop(.78, "#c8f8d9"); grd.addColorStop(1, "#80dc9d");
           ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
-          ctx.fillStyle = "rgba(255,255,255,.28)";
-          for (let x = 0; x < W; x += 88) for (let y = 90; y < H - 120; y += 88) { ctx.beginPath(); ctx.arc(x + (y % 176 ? 28 : 0), y, 3, 0, TAU); ctx.fill(); }
-          ctx.fillStyle = "#78d99f"; ctx.fillRect(0, H - 80, W, 80);
-          ctx.fillStyle = "rgba(255,255,255,.42)"; ctx.fillRect(0, H - 83, W, 5);
+          ctx.fillStyle = "rgba(255,255,255,.55)";
+          for (let i = 0; i < 6; i++) {
+            const x = (i * 250 + performance.now() * .006) % (W + 180) - 90;
+            const y = 84 + (i % 3) * 42;
+            ctx.beginPath(); ctx.ellipse(x, y, 56, 18, 0, 0, TAU); ctx.ellipse(x + 43, y + 4, 42, 15, 0, 0, TAU); ctx.fill();
+          }
+          ctx.fillStyle = "#81dba6";
+          ctx.beginPath(); ctx.moveTo(0, H - 185);
+          for (let x = 0; x <= W; x += 80) ctx.lineTo(x, H - 178 + Math.sin(x * .018) * 10);
+          ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = "#5fcf8e";
+          ctx.beginPath(); ctx.moveTo(0, H - 112);
+          for (let x = 0; x <= W; x += 64) ctx.lineTo(x, H - 106 + Math.sin(x * .03) * 8);
+          ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = "rgba(255,255,255,.35)";
+          for (let x = 24; x < W; x += 78) for (let y = 105; y < H - 160; y += 78) {
+            ctx.beginPath(); ctx.arc(x + (y % 156 ? 22 : 0), y, 3, 0, TAU); ctx.fill();
+          }
+          ctx.strokeStyle = "rgba(255,255,255,.78)"; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(0, H - 112); ctx.lineTo(W, H - 112); ctx.stroke();
+          ctx.strokeStyle = "rgba(55,122,108,.16)"; ctx.lineWidth = 8;
+          ctx.strokeRect(12, 64, W - 24, H - 82);
         }
         drawLightning(ctx) {
           ctx.save(); ctx.globalAlpha = .8; ctx.strokeStyle = "#fff36d"; ctx.lineWidth = 5; ctx.lineCap = "round";
