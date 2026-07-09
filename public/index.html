@@ -297,6 +297,22 @@
       line-height: 1.5;
       font-weight: 800;
     }
+    .resultStats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 1fr));
+      gap: 8px;
+      margin: 14px 0 18px;
+    }
+    .resultStats span {
+      display: block;
+      padding: 10px;
+      border: 2px solid rgba(255,255,255,.86);
+      border-radius: 8px;
+      background: linear-gradient(180deg, #fff, #eaf8ff);
+      color: #263956;
+      font-weight: 1000;
+      box-shadow: 0 5px 0 rgba(75,130,166,.2);
+    }
     .actions {
       display: flex;
       justify-content: center;
@@ -361,8 +377,8 @@
           <p>한 발을 당겨 쏘고, 튕기고, 진화시켜 화면을 쓸어버리세요.</p>
           <div class="startBadges">
             <span>Pull & Release</span>
-            <span>7 Evolutions</span>
-            <span>Boss Rush</span>
+            <span id="bestBadge">Best 0</span>
+            <span id="coinsBadge">Coins 0</span>
           </div>
           <div class="actions">
             <button id="startBtn">PLAY NOW</button>
@@ -376,10 +392,10 @@
     </section>
     <section class="overlay" id="result" hidden>
       <div class="modal">
-        <h1>RESULT</h1>
-        <p id="resultText"></p>
+        <h1 id="resultTitle">RESULT</h1>
+        <div class="resultStats" id="resultText"></div>
         <div class="actions">
-          <button id="againBtn">다시하기</button>
+          <button id="againBtn">다시하기 · Lv7 도전</button>
           <button class="secondary" id="shareBtn">공유하기</button>
         </div>
       </div>
@@ -408,7 +424,15 @@
         start: document.getElementById("start"),
         result: document.getElementById("result"),
         resultText: document.getElementById("resultText"),
-        scoreBox: document.getElementById("scoreBox")
+        resultTitle: document.getElementById("resultTitle"),
+        scoreBox: document.getElementById("scoreBox"),
+        bestBadge: document.getElementById("bestBadge"),
+        coinsBadge: document.getElementById("coinsBadge")
+      };
+      const save = {
+        best: Number(localStorage.getItem("evoBulletBest") || 0),
+        coins: Number(localStorage.getItem("evoBulletCoins") || 0),
+        runs: Number(localStorage.getItem("evoBulletRuns") || 0)
       };
 
       class AudioSystem {
@@ -446,6 +470,10 @@
       }
       class UIManager {
         constructor(game) { this.game = game; this.displayScore = 0; this.lastScore = 0; }
+        refreshMeta() {
+          elements.bestBadge.textContent = `Best ${save.best.toLocaleString()}`;
+          elements.coinsBadge.textContent = `Coins ${save.coins.toLocaleString()}`;
+        }
         banner(text) {
           elements.banner.textContent = text;
           elements.banner.classList.remove("show");
@@ -475,11 +503,16 @@
         }
         showResult() {
           const s = this.game.score;
+          elements.resultTitle.textContent = this.game.newRecord ? "NEW RECORD!" : "RESULT";
           elements.resultText.innerHTML =
-            `최종 점수 ${s.score.toLocaleString()}<br>` +
-            `최고 콤보 ${s.bestCombo} · 처치 ${s.kills}<br>` +
-            `탄환 Lv ${this.game.bullet.level} · ${this.game.bullet.element.name}`;
+            `<span>Score<br>${s.score.toLocaleString()}</span>` +
+            `<span>Best<br>${save.best.toLocaleString()}</span>` +
+            `<span>Coins<br>+${this.game.runCoins.toLocaleString()} / ${save.coins.toLocaleString()}</span>` +
+            `<span>Kills<br>${s.kills} · Combo ${s.bestCombo}</span>` +
+            `<span>Bullet<br>Lv ${this.game.bullet.level}</span>` +
+            `<span>Next<br>${Math.max(0, 300 - save.coins).toLocaleString()} coins</span>`;
           elements.result.hidden = false;
+          this.refreshMeta();
         }
       }
       class ScoreSystem {
@@ -501,14 +534,14 @@
           this.tryLevel();
         }
         tryLevel() {
-          const need = [0, 45, 105, 185, 290, 420, 580];
+          const need = [0, 24, 70, 140, 240, 370, 540];
           while (this.game.bullet.level < 7 && this.xp >= need[this.game.bullet.level]) {
             this.game.bullet.level++;
             this.game.evolve();
           }
         }
         xpProgress() {
-          const need = [0, 45, 105, 185, 290, 420, 580, 780];
+          const need = [0, 24, 70, 140, 240, 370, 540, 760];
           const l = this.game.bullet.level;
           return clamp((this.xp - need[l - 1]) / (need[l] - need[l - 1]), 0, 1);
         }
@@ -748,6 +781,14 @@
           const e = this.pool.pop() || new Enemy();
           e.spawn(kind, boss); this.enemies.push(e); return e;
         }
+        createAt(kind, x, y, boss = false) {
+          const e = this.create(kind, boss);
+          e.x = clamp(x, e.r + 20, W - e.r - 20);
+          e.y = clamp(y, e.r + 80, H - e.r - 120);
+          e.hp *= .72;
+          e.maxHp = e.hp;
+          return e;
+        }
         update(dt) {
           const elapsed = 60 - this.game.timeLeft;
           const rate = elapsed < 20 ? .72 : elapsed < 35 ? .42 : .22;
@@ -791,7 +832,7 @@
           const nx = (b.x - e.x) / (Math.hypot(b.x - e.x, b.y - e.y) || 1), ny = (b.y - e.y) / (Math.hypot(b.x - e.x, b.y - e.y) || 1);
           const dot = b.vx * nx + b.vy * ny; b.vx -= 2 * dot * nx; b.vy -= 2 * dot * ny;
           g.hitStop = .055; g.shake(5, .08); g.audio.hit(); g.haptic.pulse(10);
-          if (b.element === ELEMENTS.fire || b.level >= 3) this.explode(e.x, e.y, 62 + b.level * 13, 12 + b.level * 7);
+          if (b.element === ELEMENTS.fire || b.level >= 3) this.explode(e.x, e.y, 78 + b.level * 20, 18 + b.level * 10);
           if (b.element === ELEMENTS.thunder || b.level >= 5) this.chain(e);
           if (b.level >= 6) this.blackhole(e.x, e.y);
           if (b.level >= 4) this.fragments(e.x, e.y);
@@ -808,18 +849,19 @@
         explode(x, y, r, dmg) {
           const g = this.game;
           g.effects.shockwave(x, y, "#ffb13b", r);
-          g.effects.burst(x, y, 24, ["#ff7043", "#ffe16b", "#ffffff"], 320, 7);
+          g.effects.burst(x, y, 38 + g.bullet.level * 5, ["#ff7043", "#ffe16b", "#ffffff", "#ff8fac"], 390, 9);
           for (const e of [...g.enemies.enemies]) {
             if (Math.hypot(e.x - x, e.y - y) < r && e.damage(dmg, g, { x, y })) this.kill(e);
           }
+          g.shake(8 + g.bullet.level * 2, .14);
           g.audio.boom(); g.haptic.pulse(40);
         }
         chain(source) {
           const g = this.game;
-          const targets = g.enemies.enemies.filter(e => e !== source).sort((a, b) => dist2(source, a) - dist2(source, b)).slice(0, 3 + Math.floor(g.bullet.level / 2));
+          const targets = g.enemies.enemies.filter(e => e !== source).sort((a, b) => dist2(source, a) - dist2(source, b)).slice(0, 4 + g.bullet.level);
           const ctx = g.ctx;
-          g.lightning.push({ from: { x: source.x, y: source.y }, targets, life: .12 });
-          for (const e of targets) if (e.damage(18 + g.bullet.level * 6, g, source)) this.kill(e);
+          g.lightning.push({ from: { x: source.x, y: source.y }, targets, life: .2 });
+          for (const e of targets) if (e.damage(22 + g.bullet.level * 9, g, source)) this.kill(e);
         }
         fragments(x, y) {
           const g = this.game;
@@ -833,8 +875,13 @@
           const g = this.game;
           for (const e of g.enemies.enemies) {
             const dx = x - e.x, dy = y - e.y, d = Math.hypot(dx, dy) || 1;
-            if (d < 190) { e.x += dx / d * 14; e.y += dy / d * 14; }
+            if (d < 250) {
+              e.x += dx / d * 24;
+              e.y += dy / d * 24;
+              if (d < 70 && e.damage(8, g, { x, y })) this.kill(e);
+            }
           }
+          g.effects.shockwave(x, y, "#8b63ff", 120);
         }
       }
       class InputSystem {
@@ -871,6 +918,7 @@
           if (d > 18) {
             const force = clamp(d, 20, 205) * 5.2;
             this.game.bullet.launch(dx / d * force, dy / d * force);
+            this.game.openingVolley(dx / d, dy / d);
             this.game.audio.launch(); this.game.haptic.pulse(25); this.game.shake(18, .18);
             this.game.effects.burst(this.start.x, this.start.y, 34, ["#ffffff", "#ff8fac", "#fff36d"], 310, 7);
           }
@@ -888,7 +936,17 @@
             }
             return;
           }
+          if (this.power > .92) this.game.shake(2.2, .04);
           const dx = this.start.x - this.pos.x, dy = this.start.y - this.pos.y, d = Math.hypot(dx, dy) || 1, nx = dx / d, ny = dy / d;
+          ctx.save();
+          ctx.globalAlpha = .7 + this.power * .3;
+          ctx.strokeStyle = "#fff36d";
+          ctx.lineWidth = 3 + this.power * 8;
+          ctx.beginPath(); ctx.arc(this.start.x, this.start.y, 34 + this.power * 22, 0, TAU); ctx.stroke();
+          ctx.strokeStyle = "#ff6f9d";
+          ctx.lineWidth = 2 + this.power * 4;
+          ctx.beginPath(); ctx.arc(this.start.x, this.start.y, 49 + this.power * 28, 0, TAU); ctx.stroke();
+          ctx.restore();
           ctx.strokeStyle = "rgba(255,255,255,.82)"; ctx.lineWidth = 10; ctx.lineCap = "round";
           ctx.beginPath(); ctx.moveTo(this.start.x, this.start.y); ctx.lineTo(this.pos.x, this.pos.y); ctx.stroke();
           ctx.strokeStyle = "#ff6f9d"; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(this.start.x, this.start.y); ctx.lineTo(this.pos.x, this.pos.y); ctx.stroke();
@@ -912,21 +970,57 @@
           this.bullet = new Bullet(); this.enemies = new EnemyManager(this); this.score = new ScoreSystem(this); this.collision = new CollisionSystem(this);
           this.ui = new UIManager(this); this.input = new InputSystem(this);
           this.state = "ready"; this.timeLeft = 60; this.last = 0; this.shakeTime = 0; this.shakePower = 0; this.hitStop = 0; this.flash = 0; this.lightning = [];
+          this.openingUsed = false; this.newRecord = false; this.runCoins = 0;
+          this.ui.refreshMeta();
           this.loop = this.loop.bind(this); requestAnimationFrame(this.loop);
         }
         start() {
           this.audio.unlock(); elements.start.hidden = true; elements.result.hidden = true;
           this.state = "playing"; this.timeLeft = 60; this.last = performance.now();
           this.bullet.reset(); this.enemies.reset(); this.score.reset(); this.effects = new ParticleSystem(); this.collision = new CollisionSystem(this);
+          this.openingUsed = false; this.newRecord = false; this.runCoins = 0; this.ui.displayScore = 0; this.ui.lastScore = 0;
+          this.seedAttractMode();
           this.ui.banner("PULL & RELEASE!");
         }
-        end() { this.state = "ended"; this.audio.result(); this.ui.showResult(); }
+        seedAttractMode() {
+          [["slime", 300, 548], ["mushroom", 990, 528], ["cloud", 1050, 245]].forEach(([k, x, y]) => this.enemies.createAt(k, x, y));
+        }
+        openingVolley(nx, ny) {
+          if (this.openingUsed) return;
+          this.openingUsed = true;
+          const start = this.bullet;
+          const kinds = ["slime", "mushroom", "jelly", "cloud", "star"];
+          for (let i = 0; i < 6; i++) {
+            const lead = 170 + i * 92;
+            const side = (i % 2 ? -1 : 1) * (22 + i * 6);
+            const x = start.x + nx * lead + -ny * side;
+            const y = start.y + ny * lead + nx * side;
+            this.enemies.createAt(kinds[i % kinds.length], x, y);
+          }
+          this.ui.banner("OPENING SHOT!");
+        }
+        end() {
+          this.state = "ended";
+          save.runs++;
+          this.runCoins = Math.max(12, Math.floor(this.score.score / 260) + this.score.kills * 2 + this.bullet.level * 10);
+          save.coins += this.runCoins;
+          this.newRecord = this.score.score > save.best;
+          save.best = Math.max(save.best, this.score.score);
+          localStorage.setItem("evoBulletRuns", save.runs);
+          localStorage.setItem("evoBulletCoins", save.coins);
+          localStorage.setItem("evoBulletBest", save.best);
+          this.audio.result(); this.ui.showResult();
+        }
         evolve() {
           this.ui.banner("EVOLUTION!");
           this.flash = .22; this.hitStop = .18;
-          this.effects.burst(this.bullet.x, this.bullet.y, 90, ["#ffffff", "#fff36d", "#ff8fac", "#8b63ff"], 520, 8);
-          this.effects.shockwave(this.bullet.x, this.bullet.y, "#ffffff", 190);
-          this.audio.evolve(); this.haptic.pulse(80); this.shake(25, .35);
+          const r = 160 + this.bullet.level * 34;
+          this.effects.burst(this.bullet.x, this.bullet.y, 130, ["#ffffff", "#fff36d", "#ff8fac", "#8b63ff", "#7cf2c9"], 620, 10);
+          this.effects.shockwave(this.bullet.x, this.bullet.y, "#ffffff", r);
+          for (const e of [...this.enemies.enemies]) {
+            if (Math.hypot(e.x - this.bullet.x, e.y - this.bullet.y) < r && e.damage(45 + this.bullet.level * 12, this, this.bullet)) this.collision.kill(e);
+          }
+          this.audio.evolve(); this.haptic.pulse(80); this.shake(30, .42);
         }
         shake(power, time) { this.shakePower = Math.max(this.shakePower, power); this.shakeTime = Math.max(this.shakeTime, time); }
         update(dt) {
