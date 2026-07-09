@@ -1,0 +1,23 @@
+{
+  "characters": {
+    "wizard": "canvas:chibi-wizard",
+    "archer": "reserved:chibi-archer",
+    "knight": "reserved:chibi-knight"
+  },
+  "enemies": {
+    "slime": "canvas:cute-slime",
+    "mushroom": "canvas:cute-mushroom",
+    "cloud": "canvas:soft-cloud",
+    "jelly": "canvas:round-jelly",
+    "star": "canvas:candy-star"
+  },
+  "bullets": {
+    "levels": 7,
+    "renderer": "canvas:evolving-bullet"
+  },
+  "effects": {
+    "particles": "canvas:pooled-particles",
+    "shockwave": "canvas:shockwave"
+  },
+  "og": "assets/og/evolution-bullet-og.png"
+}
